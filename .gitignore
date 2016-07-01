@@ -1,0 +1,4 @@
+/.cache/
+/.pyvenv/
+/_*/
+secrets.yml

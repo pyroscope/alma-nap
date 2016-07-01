@@ -1,0 +1,5 @@
+# Python Tools
+
+ansible==1.9.6
+invoke==0.13.0
+grip==4.1.0

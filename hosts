@@ -1,0 +1,14 @@
+# Ansible Host Inventory
+
+[prod]
+alma-nap-prod
+
+[dev]
+alma-nap-dev
+
+[www]
+alma-nap-prod
+alma-nap-dev
+
+[gitlab]
+alma-nap-dev
