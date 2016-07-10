@@ -17,8 +17,12 @@ maybe ‘an apple (a) day keeps the self-signed certificate away’. :grinning:
 
 By default, a HTTPS-only setup is created, with HTTP supported only for
 the necessary ACME callbacks used during certificate signing.
-`ufw` is installed and used to manage port 80 dynamically during the
+``ufw`` is installed and used to manage port 80 dynamically during the
 certificate signing and renewal process, unless port 80 was open to start with.
+
+Additionally, some related tools can be installed:
+
+* *GitLab CE* to manage your web site source code, including the *Mattermost* group chat server that comes with it.
 
 *ALMA-NAP* is MIT-licensed.
 
