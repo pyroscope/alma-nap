@@ -31,11 +31,13 @@
     - lftp
     - libxml2-utils
     - links
+    - lnav
     - lsb-release
     - lsof
     - mediainfo
     - ncdu
     - ntp
+    - parallel
     - p7zip-full
     - psmisc
     - python-virtualenv
