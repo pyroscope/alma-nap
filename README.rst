@@ -244,7 +244,7 @@ But better make sure…
 
 **Enable the UFW Firewall Rules**
 
-The `Uncomplicated Firewall` (UFW) tool is installed by the `ufw` role,
+The `Uncomplicated Firewall`_ (UFW) tool is installed by the `ufw` role,
 together with firewall rules matching the installed software and its
 configuration.
 Activating the firewall is left as a manual task, since you can make
