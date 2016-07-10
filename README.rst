@@ -228,7 +228,7 @@ Then re-run the playbook as follows:
     ansible-playbook -i myhosts site.yml -l example-host -t sec
 
 Now test in a new terminal that you can still access the server by
-logging in to the `deploy`` account, which should always work,
+logging in to the ``deploy`` account, which should always work,
 since that is a non-root account with pubkey authentication.
 But better make sure…
 
