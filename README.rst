@@ -116,19 +116,12 @@ while ``you@workstation$`` indicates commands that should be run in the project 
 **IMPORTANT:** While most configuration goes to dedicated user accounts,
 some global files are affected that you might have customized beforehand.
 So if the target host is not a brand-new machine with a pristine OS install,
-**make a backup of of your /etc and webserver directories** before you continue, for example using
+**make a backup of your /etc and webserver directories** before you continue, for example using
 ``( cd / && tar cvfz /root/etc+www-bak-$(date +'%Y-%m-%d-%H%M').tgz etc var/www )``.
 
-Execute your first ``ansible-playbook`` run with a combination of
-``--user=REMOTE_USER``, ``--ask-pass``,
-``--become``, ``--become-user=BECOME_USER``, ``--ask-become-pass``,
-and ``--become-method=BECOME_METHOD``.
-Not all of these are needed, use a sensible combination,
-e.g. ``--user=root --ask-pass`` for an initial ``root`` login with a password,
-which is a common way that credentials for a new cloud server are handed to you.
-
-The ``accounts`` role will then add the configured admin accounts, by default a user
-named ``deploy``. Note that you need to provide the public key of that user,
+The ``accounts`` role will add the configured admin accounts on the first *Ansible* run,
+by default a user named ``deploy``.
+Note that you need to provide the public key of that user,
 to create a new one use this command:
 
 .. code-block:: shell
@@ -149,21 +142,31 @@ add a file named ``host_vars/«example-host»/main.yml`` to the project director
 
 An example file is in ``host_vars/alma-nap-dev/main.yml``.
 
-The next call does the initial setup, installing some basic packages
+Perform your first ``ansible-playbook`` run with a combination of
+``--user=REMOTE_USER``, ``--ask-pass``,
+``--become``, ``--become-user=BECOME_USER``, ``--ask-become-pass``,
+and ``--become-method=BECOME_METHOD``.
+Not all of these are needed, use a sensible combination,
+e.g. ``--user=root --ask-pass`` for an initial ``root`` login with a password,
+which is a common way that credentials for a new cloud server are handed to you.
+
+The next call does the mentioned initial setup, installing some basic packages
+and creating admin accounts. Change the ``--user`` and ``--ask-pass`` options
+if needed, as explained in the paragraph above.
 
 .. code-block:: shell
 
     you@workstation$
     ansible-playbook -i myhosts site.yml -l alma-nap-dev -t base,acc --user=root --ask-pass
 
-… set a sudo password for your new account…
+Now, set a ``sudo`` password for the new admin account (in your ``root`` shell):
 
 .. code-block:: shell
 
     root@example-host#
     passwd deploy
 
-Now insert this password into a new file named ``host_vars/«example-host»/secrets.yml``
+Then insert this password into a new file named ``host_vars/«example-host»/secrets.yml``
 with the following content:
 
 .. code-block:: yaml
@@ -172,11 +175,11 @@ with the following content:
     ansible_sudo_pass: YOUR_DEPLOY_ACCOUNT_PASSWORD_HERE
 
 
-… test the final connection…
+You're ready to test the connection now, use the ``ansible`` command as shown:
 
 .. code-block:: shell
 
-    you@workstation$ ansible dev -i myhosts -m setup -a "filter=*distribution*"
+    you@workstation$ ansible www -i myhosts -m setup -a "filter=*distribution*"
     alma-nap-dev | success >> {
         "ansible_facts": {
             "ansible_distribution": "Debian",
@@ -186,6 +189,10 @@ with the following content:
         },
         "changed": false
     }
+
+If you do not get a success message like the above, use the power of the Internet,
+e.g. by reading the `Troubleshooting SSH connections in Ansible`_ blog post,
+or checking out the official *Ansible* documentation.
 
 
 “Let's Encrypt” Registration
@@ -248,3 +255,4 @@ More Technical Details
 .. _`Quickstart Video`: https://docs.ansible.com/ansible/quickstart.html
 .. _`Getting Started`: https://docs.ansible.com/ansible/intro_getting_started.html
 .. _`Gitlab CE`: https://about.gitlab.com/features/#community
+.. _`Troubleshooting SSH connections in Ansible`: https://sgargan.blogspot.de/2013/10/troubleshooting-ssh-connections-in.html
