@@ -244,7 +244,7 @@ But better make sure…
 
 **Enable the UFW Firewall Rules**
 
-The `Uncomplicated Firewall`_ (UFW) tool is installed by the `ufw` role,
+The `Uncomplicated Firewall`_ (UFW) tool is installed by the ``ufw`` role,
 together with firewall rules matching the installed software and its
 configuration.
 Activating the firewall is left as a manual task, since you can make
@@ -272,7 +272,7 @@ PHP Application Considerations
 The default configuration comes with multiple PHP hardening settings
 that might break some features of your application.
 Please check the following points and if there is a conflict,
-either change you code or adapt the default values.
+either improve your code or adapt the default values.
 
 * Make sure you're not relying on side effects of assertions.
 
