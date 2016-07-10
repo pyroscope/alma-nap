@@ -202,6 +202,15 @@ or checking out the official *Ansible* documentation.
 Initial Full Run
 ^^^^^^^^^^^^^^^^
 
+It is time to install the rest of the software stack:
+
+.. code-block:: shell
+
+    you@workstation$
+    ansible-playbook -i myhosts site.yml -l example-host
+
+
+
 
 
 Completing Your Setup
@@ -233,6 +242,30 @@ since that is a non-root account with pubkey authentication.
 But better make sure…
 
 
+**Enable the UFW Firewall Rules**
+
+The `Uncomplicated Firewall` (UFW) tool is installed by the `ufw` role,
+together with firewall rules matching the installed software and its
+configuration.
+Activating the firewall is left as a manual task, since you can make
+a remote server pretty much unusable when SSH connections get disabled by accident
+— only a rescue mode or virtual console can help to avoid a full reinstall then,
+if you have no physical access to the machine.
+
+.. code-block:: shell
+
+    root@example-host#
+    egrep 'ssh|22' /lib/ufw/user.rules
+    # Make sure the output contains
+    #   ### tuple ### limit tcp 22 0.0.0.0/0 any 0.0.0.0/0 in
+    # followed by 3 lines starting with '-A'.
+
+    ufw enable  # activate the firewall
+    ufw status verbose  # show all the settings
+
+If the firewall status is printed to the console, you made it. :tada:
+
+
 PHP Application Considerations
 ------------------------------
 
@@ -255,3 +288,4 @@ More Technical Details
 .. _`Getting Started`: https://docs.ansible.com/ansible/intro_getting_started.html
 .. _`Gitlab CE`: https://about.gitlab.com/features/#community
 .. _`Troubleshooting SSH connections in Ansible`: https://sgargan.blogspot.de/2013/10/troubleshooting-ssh-connections-in.html
+.. _`Uncomplicated Firewall`: https://en.wikipedia.org/wiki/Uncomplicated_Firewall
