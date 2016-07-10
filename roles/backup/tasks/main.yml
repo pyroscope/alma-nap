@@ -13,3 +13,27 @@
     - .ssh
     - local
     - remote
+
+- name: Copy back2back SSH keys
+  copy: src=ssh-{{ item }} dest=/home/back2back/.ssh/{{ item }} owner=back2back group=back2back mode=0600 force={{ ssh_keygen }}
+  with_items:
+    - back2back
+    - back2back.pub
+
+- name: Allow back2back SSH access
+  copy: src=ssh-back2back.pub dest=/home/back2back/.ssh/authorized_keys owner=back2back group=back2back mode=0640 force={{ ssh_keygen }}
+
+- name: Render backup scripts
+  template: src="{{ item }}" dest="/usr/local/sbin/{{ item }}" owner=root group=root mode=0755 force=yes
+  with_items:
+    - back2back-remote
+
+# This runs LATE in the backup hour!
+- name: Create cron job for remote backup pulling
+  cron:
+    name="Transfer backups off-site via rsync"
+    user=root
+    cron_file=back2back
+    hour={{ backup_cron_hour }}
+    minute=55
+    job="/usr/local/sbin/back2back-remote --cron"

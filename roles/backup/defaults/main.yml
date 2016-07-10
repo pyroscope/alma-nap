@@ -1,0 +1,5 @@
+---
+backup_remote_hosts:
+backup_cron_hour: 0
+
+ssh_keygen: false

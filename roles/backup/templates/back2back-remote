@@ -1,0 +1,31 @@
+#! /bin/bash
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! FILE IS CONTROLLED BY ANSIBLE, DO NOT CHANGE, OR ELSE YOUR CHANGES WILL BE EVENTUALLY LOST !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# Transfer backups off-site via rsync
+#
+
+# Domains of remote hosts to pull
+REMOTES=( "{{ backup_remote_hosts or [] | join('" "') }}" )
+
+BAK_USER="back2back"
+BAK_TMP="/home/$BAK_USER"
+BAK_DIR="/home/$BAK_USER/remote"
+REMOTE_LOCAL_DIR="/home/$BAK_USER/local"
+REMOTE_LOCAL_WEEKLY="$REMOTE_LOCAL_DIR/$(date +'%Y-W%W')"
+
+
+function pull_remote()
+{
+    local remote="$1"
+    local syncdir="$BAK_DIR/$remote"
+
+    mkdir -p "$syncdir"
+}
+
+
+for remote in "${REMOTES[@]}"; do
+    pull_remote "$remote"
+done

@@ -1,5 +1,10 @@
 ---
 # Basic host setup
+- hosts: localhost
+  sudo: no
+  roles:
+    - { role: local, tags: init }
+
 - hosts: all
   roles:
     - { role: common, sudo: yes, tags: base }

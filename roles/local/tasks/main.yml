@@ -1,0 +1,8 @@
+---
+# WARNING: Only use "-e ssh_keygen=true" on the very first run ever!
+#          Otherwise, copy the existing private key into your workdir.
+- name: Create back2back SSH key
+  command: ssh-keygen -t rsa -b 2048 -C "back2back rsync" -N "" -f roles/backup/files/ssh-back2back
+  args:
+    creates: roles/backup/files/ssh-back2back
+  when: ssh_keygen in ('yes', 'true', 'True', True)
