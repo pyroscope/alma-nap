@@ -1,5 +1,6 @@
 ---
 ansible_sudo: true
+sshd_PasswordAuthentication: false
 
 motd_description: "ALMA-NAP Demo Server"
 nginx_server_name: "{{ ansible_fqdn }}"
