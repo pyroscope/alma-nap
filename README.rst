@@ -255,11 +255,9 @@ if you have no physical access to the machine.
 .. code-block:: shell
 
     root@example-host#
-    egrep 'ssh|22' /lib/ufw/user.rules
+    ufw show added
     # Make sure the output contains
-    #   ### tuple ### limit tcp 22 0.0.0.0/0 any 0.0.0.0/0 in
-    # followed by 3 lines starting with '-A'.
-
+    #   ufw limit 22/tcp
     ufw enable  # activate the firewall
     ufw status verbose  # show all the settings
 
