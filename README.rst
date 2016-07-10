@@ -73,7 +73,7 @@ You need to change ``Host`` and ``HostName`` to fitting values.
 
 .. code-block:: ini
 
-    Host alma-nap-dev
+    Host example-host
         HostName www.example.com
         User deploy
         IdentityFile ~/.ssh/deploy
@@ -83,7 +83,7 @@ It is recommended you use the ``deploy`` user and its key as shown,
 as the rest of the documentation works with that user account.
 We'll create a SSH key for it later on.
 Also, everytime you see the value ``example-host`` below,
-replace it with your ``Host`` value.
+replace it with your own ``Host`` value.
 
 Also create a custom *Ansible* inventory file similar to the ``hosts`` example
 — call it ``myhosts`` and add the following:
@@ -157,7 +157,7 @@ if needed, as explained in the paragraph above.
 .. code-block:: shell
 
     you@workstation$
-    ansible-playbook -i myhosts site.yml -l alma-nap-dev -t base,acc --user=root --ask-pass
+    ansible-playbook -i myhosts site.yml -l example-host -t base,acc --user=root --ask-pass
 
 Now, set a ``sudo`` password for the new admin account (in your ``root`` shell):
 
@@ -180,7 +180,7 @@ You're ready to test the connection now, use the ``ansible`` command as shown:
 .. code-block:: shell
 
     you@workstation$ ansible www -i myhosts -m setup -a "filter=*distribution*"
-    alma-nap-dev | success >> {
+    example-host | success >> {
         "ansible_facts": {
             "ansible_distribution": "Debian",
             "ansible_distribution_major_version": "8",
@@ -207,8 +207,7 @@ Initial Full Run
 Completing Your Setup
 ^^^^^^^^^^^^^^^^^^^^^
 
-Disable Root and Password Login
--------------------------------
+**Disable Root and Password Login**
 
 So that people *not* reading this documentation don't lock themselves
 out of their servers, the two critical values regarding this
