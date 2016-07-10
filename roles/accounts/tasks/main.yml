@@ -1,0 +1,16 @@
+---
+- name: "Create admin user's groups"
+  group: name={{ item.name }} state=present
+  with_items: admin_accounts
+
+- name: Create admin users
+  user: name={{ item.name }} comment="{{ item.name }} (admin)" group={{ item.name }} groups=users,sudo,adm,www-data append=yes shell=/bin/bash
+  with_items: admin_accounts
+
+- name: Create admin .ssh dirs
+  file: path=/home/{{ item.name }}/.ssh state=directory owner={{ item.name }} group={{ item.name }} mode=0700
+  with_items: admin_accounts
+
+- name: Install admin SSH keys
+  copy: src={{ item.pubkey }} dest=/home/{{ item.name }}/.ssh/authorized_keys owner={{ item.name }} group={{ item.name }} mode=0640
+  with_items: admin_accounts

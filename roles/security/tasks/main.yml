@@ -1,0 +1,7 @@
+---
+
+- include: lynis.yml
+  tags: lynis
+
+
+# TODO: (mostly) copy https://github.com/dev-sec/ansible-os-hardening as "os-hardening" role

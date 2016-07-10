@@ -1,0 +1,9 @@
+---
+# Basic host setup
+- hosts: all
+  roles:
+    - { role: common, sudo: yes, tags: base }
+    - { role: accounts, sudo: yes, tags: acc }
+    - { role: ufw, sudo: yes, tags: ufw }
+    - { role: security, sudo: yes, tags: sec }
+    - { role: backup, sudo: yes, tags: bak }

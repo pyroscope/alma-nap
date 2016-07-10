@@ -1,0 +1,5 @@
+---
+ansible_sudo: true
+
+motd_description: "ALMA-NAP Demo Server"
+nginx_server_name: "{{ ansible_fqdn }}"

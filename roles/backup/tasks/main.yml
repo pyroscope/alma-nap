@@ -1,0 +1,15 @@
+---
+- name: Create back2back group
+  group: name=back2back state=present
+
+- name: Create back2back user
+  user: name=back2back comment="back2back backup data" group=back2back groups=users append=yes shell=/bin/bash
+
+- name: Create back2back home dirs
+  file: path=/home/back2back/{{ item }} state=directory owner=back2back group=back2back mode=0750
+  with_items:
+    - .
+    - bin
+    - .ssh
+    - local
+    - remote

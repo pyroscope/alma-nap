@@ -1,0 +1,5 @@
+---
+# Deploy GitLab infrastructure
+- hosts: gitlab
+  roles:
+    - { role: gitlab, sudo: yes, tags: git }

@@ -1,0 +1,46 @@
+---
+
+- name: Install essential security packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - libpam-pwquality
+    - debsums
+
+- name: Harden SSH daemon configuration
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^#? ?{{ item.name }} " line="{{ item.name }} {{ item.value }}"
+  with_items:
+    - {name: 'ClientAliveCountMax', value: '2' }
+    - {name: 'MaxAuthTries', value: '1' }
+    - {name: 'MaxSessions', value: '3' }
+    - {name: 'PasswordAuthentication', value: "{{ 'yes' if sshd_PasswordAuthentication else 'no' }}" }
+    - {name: 'PermitRootLogin', value: "{{ 'yes' if sshd_PermitRootLogin else 'no' }}" }
+    - {name: 'UseDNS', value: 'no' }
+    - {name: 'UsePrivilegeSeparation', value: 'sandbox' }
+    - {name: 'X11Forwarding', value: 'no' }
+  notify:
+    - Reload SSH daemon
+
+# Default umask in /etc/login.defs could be more strict like 027
+# Default umask in /etc/init.d/rc could be more strict like 027
+# Install a package audit tool to determine vulnerable packages
+
+# Consider hardening SSH configuration [test:SSH-7408] [details:Compression (DELAYED --> NO)]
+# Consider hardening SSH configuration [test:SSH-7408] [details:LogLevel (INFO --> VERBOSE)]
+# Consider hardening SSH configuration [test:SSH-7408] [details:Port (22 --> )]
+# Consider hardening SSH configuration [test:SSH-7408] [details:TCPKeepAlive (YES --> NO)]
+
+# Change the allow_url_fopen line to: allow_url_fopen = Off, to disable downloads via PHP
+# Add a legal banner to /etc/issue, to warn unauthorized users
+# Add legal banner to /etc/issue.net, to warn unauthorized users
+# Enable process accounting
+# Enable sysstat to collect accounting (disabled)
+# Enable auditd to collect audit information
+# Check ntpq peers output for unreliable ntp peers and correct/replace them
+# Install a file integrity tool to monitor changes to critical and sensitive files
+# Harden compilers like restricting access to root user only
+#    /usr/bin/as /usr/bin/gcc
+# Harden the system by installing at least one malware scanner, to perform periodic file system scans
+#
+# Hardening index : [63] [############........]
+# Tests performed:     224
+# Total tests:         364

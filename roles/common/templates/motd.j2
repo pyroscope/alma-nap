@@ -1,0 +1,9 @@
+*****************************************************************************
+This is {{ ansible_fqdn }} running on {{ ansible_lsb.description }}
+
+Purpose:    {{ motd_description }}
+Memory:     {{ ansible_memory_mb.real.total }} MiB [swap: {{ ansible_memory_mb.swap.total }} MiB]
+Kernel:     {{ ansible_kernel }} [{{ ansible_architecture }}]
+Network:    {{ ansible_default_ipv4.address }} [{{ ansible_default_ipv4.alias }}]
+Ansible:    v{{ ansible_version.full }} [last full or 'base' run: {{ ansible_date_time.iso8601_micro }}]
+*****************************************************************************

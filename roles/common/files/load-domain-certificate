@@ -1,0 +1,19 @@
+#! /bin/bash
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! FILE IS CONTROLLED BY ANSIBLE, DO NOT CHANGE, OR ELSE YOUR CHANGES WILL BE EVENTUALLY LOST !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# Download a self-signed certificate and add it to the host's trusted certs
+#
+if test -z "$1"; then
+    echo "usage: $0 <domainname_or_url>"
+    exit 1
+fi
+DOMAINNAME=$(sed -re 's%^(https://)?([^/]+)(.*)$%\2%' <<<$1)
+set -x
+openssl s_client -connect ${DOMAINNAME}:443 </dev/null | tee /tmp/${DOMAINNAME}.crt
+openssl x509 -inform PEM -in /tmp/${DOMAINNAME}.crt -text -out /usr/share/ca-certificates/${DOMAINNAME}.crt
+grep ${DOMAINNAME}.crt /etc/ca-certificates.conf >/dev/null || echo ${DOMAINNAME}.crt >>/etc/ca-certificates.conf
+update-ca-certificates
+ls -l /etc/ssl/certs | grep ${DOMAINNAME}

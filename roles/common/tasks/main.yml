@@ -1,0 +1,51 @@
+---
+- name: Render /etc/motd
+  template: src=motd.j2 dest=/etc/motd owner=root group=root mode=0644 force=yes
+
+- name: Copy Superuser Helper Scripts
+  copy: src={{ item }} dest=/usr/local/sbin/{{ item }} owner=root group=root mode=0750
+  with_items:
+    - load-domain-certificate
+
+- name: Install Host Configuration Files
+  copy: src={{ item }} dest=/etc/{{ item }} owner=root group=root mode=0644
+  with_items:
+    - profile.d/aliases.sh
+    - tmux.conf
+
+- name: Install Some Essentials
+  apt: name={{ item }} state=latest
+  with_items:
+    - bash-completion
+    - bc
+    - bind9-host
+    - bzip2
+    - cfv
+    - colordiff
+    - curl
+    - gawk
+    - haveged
+    - htop
+    - httpie
+    - iotop
+    - lftp
+    - libxml2-utils
+    - links
+    - lsb-release
+    - lsof
+    - mediainfo
+    - ncdu
+    - ntp
+    - p7zip-full
+    - psmisc
+    - python-virtualenv
+    - realpath
+    - rsync
+    - sysstat
+    - sudo
+    - tmux
+    - unzip
+    - vim
+    - vnstat
+    - wget
+    - zip
