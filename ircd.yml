@@ -1,0 +1,5 @@
+---
+# Deploy IRC server
+- hosts: irc
+  roles:
+    - { role: ircd, sudo: yes, tags: irc }

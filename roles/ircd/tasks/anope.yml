@@ -1,0 +1,33 @@
+---
+- name: Download Anope IRC services release
+  get_url: url={{ anope_download_url }} dest=/home/ircd/.cache/anope-{{ anope_version }}.tar.gz mode=0440
+
+- name: Unpack Anope IRC services
+  unarchive:
+    src: /home/ircd/.cache/anope-{{ anope_version }}.tar.gz
+    dest: /home/ircd/.local
+    creates: /home/ircd/.local/anope-{{ anope_version }}-source/Config
+    copy: no
+    owner: ircd
+    group: ircd
+    mode: g=rX,o=
+
+- name: Enforce source ownership
+  file: dest=/home/ircd/.local/anope-{{ anope_version }}-source owner=ircd group=ircd recurse=yes
+
+- name: Install Anope dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - cmake
+
+- name: Check services executable
+  stat: path=/home/ircd/.local/services/bin/services
+  register: anope_bin
+
+- name: Require manual install step
+  fail:
+    msg: "Go to /home/ircd/.local/anope-{{ anope_version }}-sources and call ./Config with /home/ircd/.local/services as the install target"
+  when: not(anope_bin.stat.exists and anope_bin.stat.xusr)
+
+- name: Link services executable
+  file: path=/home/ircd/bin/services state=link src=../.local/services/bin/services

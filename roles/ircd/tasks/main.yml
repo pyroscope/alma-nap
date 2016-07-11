@@ -1,0 +1,98 @@
+---
+# Unreal IRCd
+#   https://www.unrealircd.org/docs/Installing_from_source
+#   https://www.unrealircd.org/docs/UnrealIRCd_4_documentation
+#   https://www.unrealircd.org/docs/FAQ
+#
+#   Forums: https://forums.unrealircd.org/
+#   IRC: irc.unrealircd.org / #unreal-support
+#
+#   Configuration files: /home/ircd/.local/unrealircd/conf
+#       /home/ircd/.local/unrealircd/conf/unrealircd.conf
+#       https://www.unrealircd.org/docs/Installing_from_source#Creating_a_configuration_file
+#   Log files: /home/ircd/.local/unrealircd/logs
+#   Modules: /home/ircd/.local/unrealircd/modules
+#   To start/stop UnrealIRCd run: /home/ircd/.local/unrealircd/unrealircd
+
+- name: Create ircd group
+  group: name=ircd state=present
+
+- name: Create ircd user
+  user: name=ircd comment="Unreal ircd" group=ircd groups=users shell=/bin/bash
+
+- name: Create ircd home directories
+  file: path=/home/ircd/{{ item }} state=directory owner=ircd group=ircd mode=0750
+  with_items:
+    - .
+    - bin
+    - .cache
+    - .local
+
+- name: Download ircd release
+  get_url: url={{ ircd_download_url }} dest=/home/ircd/.cache/unrealircd-{{ ircd_version }}.tar.gz mode=0440
+
+- name: Unpack ircd
+  unarchive:
+    src: /home/ircd/.cache/unrealircd-{{ ircd_version }}.tar.gz
+    dest: /home/ircd/.local
+    creates: /home/ircd/.local/unrealircd-{{ ircd_version }}/Config
+    copy: no
+    owner: ircd
+    group: ircd
+    mode: g=rX,o=
+
+- name: Install dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - build-essential
+    - openssl
+    - libcurl4-openssl-dev
+
+- name: Check ircd executable
+  stat: path=/home/ircd/.local/unrealircd/unrealircd
+  register: ircd_bin
+
+- name: Require manual install step
+  fail:
+    msg: "Go to /home/ircd/.local/unrealircd-{{ ircd_version }} and call ./Config with /home/ircd/.local/unrealircd as the install target"
+  when: not(ircd_bin.stat.exists and ircd_bin.stat.xusr)
+
+- include: anope.yml
+
+- name: Link ircd executable
+  file: path=/home/ircd/bin/unrealircd state=link src=../.local/unrealircd/unrealircd
+
+- name: Render main config file
+  template: src=unrealircd.conf dest=/home/ircd/.local/unrealircd/conf/unrealircd.conf owner=ircd group=ircd mode=0640 force=yes
+  notify:
+    - Rehash ircd
+
+- name: Install MOTD / RULES files
+  copy: src=files/{{ ircd_network }}.{{ item }} dest=/home/ircd/.local/unrealircd/conf/ircd.{{ item }} owner=ircd group=ircd mode=0640 force=yes
+  with_items:
+    - motd
+    - rules
+  notify:
+    - Rehash ircd
+
+- name: Link logs directory
+  file: path=/home/ircd/logs state=link src=.local/unrealircd/logs
+
+- name: Install initial ircd crontab
+  copy: src=crontab dest=/var/spool/cron/crontabs/ircd owner=ircd group=crontab mode=0600 force=no
+
+- name: Add ircd cron watchdog
+  cron: user=ircd minute=*/10 name=ircd_watchdog job="{{ ircd_watchdog | lower }} && /home/yourusername/unrealircd/unrealircd croncheck"
+
+- name: Add ircd start at reboot
+  cron: user=ircd special_time=reboot name=ircd_reboot job="{{ ircd_watchdog | lower }} && /home/yourusername/unrealircd/unrealircd croncheck"
+
+- name: Set IRCd UFW rules
+  command: "ufw {{ item.action }} {{ item.to }}"
+  register: ufw_result
+  failed_when: not("Skipping" in ufw_result.stdout or "added" in ufw_result.stdout or "updated" in ufw_result.stdout)
+  changed_when: ("added" in ufw_result.stdout or "updated" in ufw_result.stdout)
+  with_items:
+    - {action: allow, to: "{{ ircd_port }}/tcp"}
+    - {action: allow, to: "{{ ircd_port_ssl }}/tcp"}
+  when: ircd_ufw

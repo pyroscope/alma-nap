@@ -1,0 +1,13 @@
+---
+cron_email: root@localhost
+ircd_watchdog: false
+ircd_ufw: true
+ircd_server_password:
+ircd_port: 6667
+ircd_port_ssl: 6697
+ircd_version: 4.0.4
+ircd_download_url: https://www.unrealircd.org/unrealircd4/unrealircd-{{ ircd_version }}.tar.gz
+ircd_fixed_channels: false
+
+anope_version: 2.0.3
+anope_download_url: https://github.com/anope/anope/releases/download/{{ anope_version }}/anope-{{ anope_version }}-source.tar.gz
