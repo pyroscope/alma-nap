@@ -1,0 +1,90 @@
+---
+- name: Check If Gitlab Configuration File Already Exists
+  stat: path=/etc/gitlab/gitlab.rb
+  register: gitlab_config_file
+
+- name: Check If Gitlab is Already Installed
+  stat: path=/usr/bin/gitlab-ctl
+  register: gitlab_file
+
+# Install GitLab and its Dependencies (Debian)
+- name: Install GitLab Dependencies (Debian)
+  apt: "name={{ item }} state=installed"
+  with_items:
+    - openssh-server
+    - postfix
+    - curl
+  when: ansible_os_family == 'Debian'
+
+- name: Download GitLab Repository Installation Script (Debian)
+  get_url:
+    url: "{{ gitlab_repository_installation_script_url }}"
+    dest: /tmp/gitlab_install_repository.sh
+  when: (gitlab_file.stat.exists == false) and (ansible_os_family == 'Debian')
+
+- name: Install GitLab Repository
+  command: bash /tmp/gitlab_install_repository.sh
+  when: (gitlab_file.stat.exists == false) and (ansible_os_family == 'Debian')
+
+- name: Install GitLab
+  apt: "name=gitlab-ce state=installed"
+  when: (gitlab_file.stat.exists == false) and (ansible_os_family == 'Debian')
+
+# Start and configure GitLab. Sometimes the first run fails, but after that,
+# restarts fix problems, so ignore failures on this run.
+- name: Reconfigure GitLab (first run)
+  command: >
+    gitlab-ctl reconfigure
+    creates=/var/opt/gitlab/bootstrapped
+  failed_when: false
+
+- name: Create GitLab SSL configuration folder
+  file:
+    path: /etc/gitlab/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when: gitlab_create_self_signed_cert
+
+- name: Create Self-Signed Certificate (GitLab)
+  command: >
+    openssl req -new -nodes -x509 -subj "{{ gitlab_cert_subj }}{{ gitlab_domain }}" -days 3650 -keyout "{{ gitlab_ssl_certificate_key }}" -out "{{ gitlab_ssl_certificate }}" -extensions v3_ca
+    creates={{ gitlab_ssl_certificate }}
+  when: gitlab_create_self_signed_cert
+
+- name: Render GitLab Configuration File
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart gitlab
+
+
+#############################################################################
+# CUSTOM ADDITIONS
+
+- name: Create Self-Signed Certificate (Mattermost)
+  command: >
+    openssl req -new -nodes -x509 -subj "{{ gitlab_cert_subj }}{{ mattermost_domain }}" -days 3650 -keyout "/etc/gitlab/ssl/mattermost.key" -out "/etc/gitlab/ssl/mattermost.crt" -extensions v3_ca
+    creates=/etc/gitlab/ssl/mattermost.crt
+  when: gitlab_create_self_signed_cert
+
+## TODO: Automate replacing the GL-CE certs by the host ones (and importing the self-signed ones)
+## http://vaelen.org/2016/02/05/adding-certificates-to-ubuntu-and-gitlab/
+
+- name: Copy GitLab Helper Scripts
+  copy: src={{ item }} dest=/usr/local/sbin/{{ item }} owner=root group=root mode=0750
+  with_items:
+    - back2back-gitlab
+
+- name: Create GitLab Backup Cron Job
+  cron:
+    name="GitLab Backup"
+    user=root
+    cron_file=gitlab
+    hour=5
+    minute=0
+    job="/usr/local/sbin/back2back-gitlab --cron"

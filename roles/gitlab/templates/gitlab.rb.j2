@@ -1,0 +1,55 @@
+# The URL through which GitLab will be accessed
+external_url "{{ gitlab_external_url }}"
+unicorn['port'] = {{ gitlab_unicorn_port }}
+gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_ssh_port }}
+
+# Mattermost integration
+# http://docs.gitlab.com/omnibus/gitlab-mattermost/
+mattermost_external_url "{{ mattermost_external_url }}"
+mattermost['service_use_ssl'] = true
+mattermost_nginx['redirect_http_to_https'] = false
+mattermost_nginx['ssl_certificate'] = "/etc/gitlab/ssl/mattermost.crt"
+mattermost_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/mattermost.key"
+
+#mattermost['service_enable_incoming_webhooks'] = true
+
+# TODO: proper Mattermost email config
+mattermost['email_enable_sign_in_with_email'] = false
+mattermost['email_enable_sign_up_with_email'] = false
+mattermost['email_send_email_notifications'] = false
+#mattermost['email_smtp_username'] = "username"
+#mattermost['email_smtp_password'] = "password"
+#mattermost['email_smtp_server'] = "smtp.example.com"
+#mattermost['email_smtp_port'] = "587"
+#mattermost['email_connection_security'] = 'TLS' # Or 'STARTTLS'
+#mattermost['email_feedback_name'] = "GitLab Mattermost"
+#mattermost['email_feedback_email'] = "email@example.com"
+
+mattermost['db2_backup_created'] = true
+mattermost['db2_team_name'] = "{{ mattermost_team_name }}"
+
+# limit backup lifetime to 7 days - 604800 seconds
+gitlab_rails['backup_keep_time'] = 604800
+
+# Whether to redirect http to https
+nginx['redirect_http_to_https'] = {{ gitlab_redirect_http_to_https }}
+nginx['ssl_certificate'] = "{{ gitlab_ssl_certificate }}"
+nginx['ssl_certificate_key'] = "{{ gitlab_ssl_certificate_key }}"
+
+# The directory where Git repositories will be stored
+git_data_dir "{{ gitlab_git_data_dir }}"
+
+# These settings are documented in more detail at
+# https://gitlab.com/gitlab-org/gitlab-ce/blob/master/config/gitlab.yml.example#L118
+gitlab_rails['ldap_enabled'] = {{ gitlab_ldap_enabled }}
+gitlab_rails['ldap_host'] = '{{ gitlab_ldap_host }}'
+gitlab_rails['ldap_port'] = {{ gitlab_ldap_port }}
+gitlab_rails['ldap_uid'] = '{{ gitlab_ldap_uid }}'
+gitlab_rails['ldap_method'] = '{{ gitlab_ldap_method}}' # 'ssl' or 'plain'
+gitlab_rails['ldap_bind_dn'] = '{{ gitlab_ldap_bind_dn }}'
+gitlab_rails['ldap_password'] = '{{ gitlab_ldap_password }}'
+gitlab_rails['ldap_allow_username_or_email_login'] = true
+gitlab_rails['ldap_base'] = '{{ gitlab_ldap_base }}'
+
+# To change other settings, see:
+# https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#changing-gitlab-yml-settings

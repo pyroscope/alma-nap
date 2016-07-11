@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! FILE IS CONTROLLED BY ANSIBLE, DO NOT CHANGE, OR ELSE YOUR CHANGES WILL BE EVENTUALLY LOST !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# Backup important data to "~back2back/local".
+# Usually called from "/etc/cron.d/gitlab".
+#
+set -e
+
+BAK_USER="back2back"
+BAK_DIR="/home/$BAK_USER/local"
+BAK_DIR_WEEKLY="$BAK_DIR/$(date +'%Y-W%W')"
+BAK_DIR_GITLAB="/var/opt/gitlab/backups"
+
+umask 0007
+cd /
+mkdir -p "$BAK_DIR_WEEKLY"
+
+# Backup GitLab config (daily for a week, and also weekly for a year)
+cfg_tarball="$BAK_DIR/gitlab-etc-$(date +'%w').tgz"
+tar -cz -f "$cfg_tarball" "etc/gitlab" "etc/ssh"/ssh_host_*
+ln -f "$cfg_tarball" "$BAK_DIR_WEEKLY/gitlab-etc.tgz"
+
+# Backup GitLab data (BAK_DIR_GITLAB keeps a week worth, we keep one copy per week)
+/opt/gitlab/bin/gitlab-rake gitlab:backup:create CRON=1
+latest_tar=$(ls -1 "$BAK_DIR_GITLAB"/[0-9]*_gitlab_backup.tar | tail -n1)
+gzip <"$latest_tar" >"$BAK_DIR_WEEKLY/gitlab-data.tgz"
+echo >"$BAK_DIR_WEEKLY/gitlab-data-restore.sh" "zcat gitlab-data.tgz >\"$latest_tar\""
+
+# Fix permissions
+chown -R $BAK_USER.$BAK_USER "$BAK_DIR" || :
+chmod -R g=rX,o= "$BAK_DIR" || :
+
+# TODO: Prune data backups (maybe best in a cron entry of back2back)
