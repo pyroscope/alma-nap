@@ -31,7 +31,6 @@
     - lftp
     - libxml2-utils
     - links
-    - lnav
     - lsb-release
     - lsof
     - mediainfo
@@ -51,3 +50,9 @@
     - vnstat
     - wget
     - zip
+
+- name: Install Recent Essentials
+  apt: name={{ item }} state=latest
+  with_items:
+    - lnav
+  when: ansible_distribution != "Debian" or ansible_distribution_major_version not in "67"
