@@ -1,5 +1,5 @@
 *****************************************************************************
-This is {{ ansible_fqdn }} running on {{ ansible_lsb.description }}
+This is {{ inventory_hostname }} [{{ ansible_fqdn }}] running on {{ ansible_lsb.description }}
 
 Purpose:    {{ motd_description }}
 Memory:     {{ ansible_memory_mb.real.total }} MiB [swap: {{ ansible_memory_mb.swap.total }} MiB]
