@@ -1,0 +1,73 @@
+---
+- name: Render ACME scripts
+  template: src="{{ item }}" dest="/usr/local/sbin/{{ item }}" owner=root group=root mode=0755 force=yes
+  with_items:
+    - acme-tiny
+    - acme-renewal
+
+- name: "Copy Let's Encrypt intermediate cert"
+  copy: src=lets-encrypt-x3-cross-signed.pem dest=/etc/nginx/ssl/acme-intermediate.pem owner=root group=www-data mode=0640 force=yes
+
+- name: Generate a new account key
+  shell: >
+    umask 0077 && openssl genrsa 4096 > /etc/nginx/acme-account.key
+  args:
+    creates: /etc/nginx/acme-account.key
+  register: generate_account_key
+
+- name: Print account public key
+  shell: >
+    openssl rsa -in /etc/nginx/acme-account.key -pubout | tee /etc/nginx/acme-account.pub
+  register: account_public_key
+  when: generate_account_key | changed
+
+- name: Show account pub key
+  debug: var=account_public_key.stdout_lines
+  when: generate_account_key | changed
+
+- name: Stop with account registration info
+  fail: msg="Register at https://gethttpsforfree.com/ for {{ httpd_domain }}@{{ httpd_acme_email }}"
+  when: generate_account_key | changed
+
+- name: Generate a new domain key
+  shell: >
+    umask 0077 && openssl genrsa 4096 > {{ httpd_domain }}.key
+  args:
+    chdir: /etc/nginx/ssl
+    creates: "/etc/nginx/ssl/{{ httpd_domain }}.key"
+
+- name: Generate CSR for single domain key
+  shell: >
+    umask 0077 && openssl req -new -sha256 -key "{{ httpd_domain }}.key" -subj '/CN={{ httpd_domain }}' > {{ httpd_domain }}.csr
+  args:
+    chdir: /etc/nginx/ssl
+    creates: "/etc/nginx/ssl/{{ httpd_domain }}.csr"
+
+- name: Create ACME challenges directory
+  file: path=/var/www/challenges state=directory owner=root group=www-data mode=0750
+
+- name: Render 'challenges' NginX config
+  template: src=nginx-challenges.conf dest=/etc/nginx/sites-available/challenges owner=root group=www-data mode=0644 force=yes
+  notify:
+    - Test and restart nginx
+
+- name: Enable 'challenges' site
+  file: path=/etc/nginx/sites-enabled/challenges state=link src=../sites-available/challenges
+
+- name: Generate signed + chained cert
+  command: acme-renewal
+  args:
+    chdir: /etc/nginx/ssl
+    creates: "/etc/nginx/ssl/{{ httpd_domain }}.pem"
+
+- name: Create cert renewal cron job
+  cron:
+    name="Let's Encrypt Bi-Monthly Renewal"
+    user=root
+    cron_file=nginx
+    month=*/2
+    weekday=6
+    day=1-7
+    hour=1
+    minute=0
+    job="/usr/local/sbin/acme-renewal --cron"

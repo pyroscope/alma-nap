@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! FILE IS CONTROLLED BY ANSIBLE, DO NOT CHANGE, OR ELSE YOUR CHANGES WILL BE EVENTUALLY LOST !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+set -e
+
+ssl_dir="/etc/nginx/ssl"
+signed_cert="$ssl_dir/{{ httpd_domain }}.crt"
+
+
+open_http() {
+    ufw allow 80/tcp >/dev/null
+    if ! ufw status | egrep '^80/tcp.*ALLOW.*Anywhere$' >/dev/null; then
+        echo >&2 "ERROR: Cannot open firewall"
+        exit 1
+    fi
+}
+
+close_http() {
+    ufw delete allow 80/tcp >/dev/null
+    if ufw status | egrep '^80/tcp.*ALLOW.*Anywhere' >/dev/null; then
+        echo >&2 "ERROR: Could not close firewall"
+        exit 1
+    fi
+}
+
+
+test -e "$signed_cert" && stamp=$(date -r "$signed_cert" +'%s') || stamp=0
+age_days=$(( ( $(date +'%s') - $stamp + 86000 ) / 86400 ))
+if test $age_days -lt 7; then
+    echo >&2 "INFO: Certificate is still younger than a week."
+    exit 0  # renewals at most once a week
+fi
+
+trap "close_http" EXIT ERR TERM
+open_http
+ufw status | egrep '^80/tcp.*ALLOW'
+
+umask 0022
+/usr/local/sbin/acme-tiny \
+    --account-key "$ssl_dir/../acme-account.key" \
+    --csr "$ssl_dir/{{ httpd_domain }}.csr" \
+    --acme-dir "/var/www/challenges/" \
+    > "$signed_cert.~tmp~" || exit 1
+
+mv --backup=numbered "$signed_cert.~tmp~" "$signed_cert"
+cat >"$ssl_dir/{{ httpd_domain }}.pem" "$signed_cert" "$ssl_dir/acme-intermediate.pem"
+chgrp www-data "$signed_cert" "$ssl_dir/{{ httpd_domain }}.pem"
+service nginx reload

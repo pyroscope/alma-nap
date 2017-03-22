@@ -1,0 +1,50 @@
+---
+- name: Install nginx packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - nginx-full
+    - apache2-utils
+
+- name: Install PHP Basics
+  apt: name={{ item }} state=latest
+  with_items:
+    - php5-cli
+    - php5-fpm
+    - php5-mysql
+    - php5-curl
+    - php5-json
+    - php5-mcrypt
+    - php5-apcu
+    - php5-gd
+
+- name: Create nginx cert directory
+  file: path=/etc/nginx/ssl state=directory owner=root group=www-data mode=0750
+
+- include: acme.yml
+  tags: acme
+  when: httpd_lets_encrypt
+
+- name: Create nginx cert files
+  shell: >
+    umask 0027 && openssl req -newkey rsa:2048 -nodes -x509 -days 3650 -subj "{{ httpd_cert_subj }}{{ httpd_domain }}" -keyout {{ httpd_domain }}.key -out {{ httpd_domain }}.pem -extensions v3_ca
+  args:
+    chdir: /etc/nginx/ssl
+    creates: /etc/nginx/ssl/{{ httpd_domain }}.pem
+  when: not httpd_lets_encrypt
+
+- name: Create nginx dhparam file
+  command: openssl dhparam -out dhparam.pem 2048
+  args:
+    chdir: /etc/nginx/ssl
+    creates: /etc/nginx/ssl/dhparam.pem
+
+- name: Fix SSL cert permissions
+  file: dest=/etc/nginx/ssl owner=root group=www-data mode=g=rX,o= recurse=yes
+
+- name: Create nginx root directory
+  file: path=/var/www/html state=directory owner=root group=www-data mode=0750
+
+- name: Render default documents
+  copy: src={{ item }} dest=/var/www/html/{{ item }} owner=root group=www-data mode=0640 force=yes
+  with_items:
+    - 50x.html
