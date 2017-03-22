@@ -1,0 +1,16 @@
+---
+- name: Install Python Basics
+  apt: name={{ item }} state=latest
+  with_items:
+    - python
+    - python-setuptools
+    - python-pkg-resources
+    - python-virtualenv
+    - python-pip
+    - python-dev
+    - libssl-dev
+    - libffi-dev
+    - libxml2-dev
+
+- name: Create virtualenv dir
+  file: path="/usr/local/pyvenv" state=directory owner=root group=root mode=0755
