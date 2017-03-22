@@ -1,5 +1,6 @@
 ---
 backup_remote_hosts:
 backup_cron_hour: 0
+backup_cron_enabled: true
 
 ssh_keygen: false

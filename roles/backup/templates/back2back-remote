@@ -23,6 +23,9 @@ function pull_remote()
     local syncdir="$BAK_DIR/$remote"
 
     mkdir -p "$syncdir"
+
+
+    chown -R $BAK_USER.$BAK_USER "$syncdir"
 }
 
 

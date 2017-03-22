@@ -37,3 +37,4 @@
     hour={{ backup_cron_hour }}
     minute=55
     job="/usr/local/sbin/back2back-remote --cron"
+  when: backup_cron_enabled
