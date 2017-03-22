@@ -5,4 +5,4 @@
     - { role: python, sudo: yes, tags: py }
     - { role: mysql, sudo: yes, tags: db }
     - { role: httpd, sudo: yes, tags: srv }
-    - { role: website, sudo: yes, tags: www }
+    #- { role: website, sudo: yes, tags: www }
