@@ -1,0 +1,14 @@
+---
+- name: Install MySQL packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - mysql-server-5.5
+    - mysql-client-5.5
+
+- name: install 'mycli'
+  pip: name=mycli version=1.8.1 virtualenv=/usr/local/pyvenv/mycli
+
+- name: Install mycli Wrapper
+  copy: src="scripts/{{ item }}" dest="/usr/local/bin/{{ item }}" owner=root group=root mode=0755 force=yes
+  with_items:
+    - mycli

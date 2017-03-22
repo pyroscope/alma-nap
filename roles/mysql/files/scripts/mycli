@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# Call 'mycli' with the proper credentials
+#
+
+MYCLI="/usr/local/pyvenv/mycli/bin/mycli"
+WWW_DIR="/var/www"
+test -f "$WWW_DIR/include/config.php" || WWW_DIR="/var/www/html"
+
+if test -f "$WWW_DIR/include/secrets.php" >/dev/null; then
+    eval $(grep ^\\\$ $WWW_DIR/include/secrets.php \
+        | sed -re 's/\s*=\s*/=/' -e 's/;$//' -e 's/^\$//')
+elif grep -l "^.INSTALLER09" "$WWW_DIR/include/config.php" >/dev/null; then
+    eval $(grep ^\\\$.*mysql $WWW_DIR/include/config.php \
+        | sed -re 's/\s*=\s*/=/' -e 's/;$//' -e 's/^\$//' -e "s/INSTALLER09\\['([^']+)']/\\1/")
+else
+    echo >&2 "ERROR: Cannot find database credentials"
+    exit 44
+fi
+
+case "$1" in
+    --secrets)
+        return ;;
+    *)
+        $MYCLI -u $mysql_user -D $mysql_db --password "$mysql_pass" ;;
+esac
