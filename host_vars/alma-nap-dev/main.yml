@@ -4,3 +4,26 @@ sshd_PasswordAuthentication: false
 
 motd_description: "ALMA-NAP Demo Server"
 nginx_server_name: "{{ ansible_fqdn }}"
+
+httpd_cert_subj: "/O=ALMA-NAP/CN="
+httpd_acme_email: "pyroscope.project@gmail.com"
+website_php_memory_limit: 96M
+
+mattermost_team_name: "alma-nap-dev"
+
+ircd_domain: irc.pyroscope.local
+ircd_network: ALMA-NAP
+ircd_info: "ALMA-NAP IRCd"
+ircd_admin_name: PyroScope
+ircd_admin_nick: pyroscope
+ircd_admin_email: "pyroscope.project@gmail.com"
+# set "ircd_operators" in secrets.yml!
+
+ircd_fixed_channels: true
+ircd_channels:
+  - "#PyroScope"
+  - "#rtorrent-ps"
+  - "#pyrocore"
+  - "#ALMA-NAP"
+ircd_channels_autojoin:
+  - "#PyroScope"
