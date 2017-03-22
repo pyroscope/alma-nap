@@ -66,11 +66,14 @@
 #############################################################################
 # CUSTOM ADDITIONS
 
+- name: Prevent accidental GitLab CE updates (hold package)
+  command: apt-mark hold gitlab-ce
+
 - name: Create Self-Signed Certificate (Mattermost)
   command: >
     openssl req -new -nodes -x509 -subj "{{ gitlab_cert_subj }}{{ mattermost_domain }}" -days 3650 -keyout "/etc/gitlab/ssl/mattermost.key" -out "/etc/gitlab/ssl/mattermost.crt" -extensions v3_ca
     creates=/etc/gitlab/ssl/mattermost.crt
-  when: gitlab_create_self_signed_cert
+  when: gitlab_create_self_signed_cert and mattermost_enabled
 
 ## TODO: Automate replacing the GL-CE certs by the host ones (and importing the self-signed ones)
 ## http://vaelen.org/2016/02/05/adding-certificates-to-ubuntu-and-gitlab/
@@ -88,3 +91,4 @@
     hour=5
     minute=0
     job="/usr/local/sbin/back2back-gitlab --cron"
+  when: gitlab_backup_enabled

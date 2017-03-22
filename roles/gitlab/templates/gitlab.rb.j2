@@ -3,6 +3,7 @@ external_url "{{ gitlab_external_url }}"
 unicorn['port'] = {{ gitlab_unicorn_port }}
 gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_ssh_port }}
 
+{% if mattermost_enabled -%}
 # Mattermost integration
 # http://docs.gitlab.com/omnibus/gitlab-mattermost/
 mattermost_external_url "{{ mattermost_external_url }}"
@@ -28,8 +29,15 @@ mattermost['email_send_email_notifications'] = false
 mattermost['db2_backup_created'] = true
 mattermost['db2_team_name'] = "{{ mattermost_team_name }}"
 
+{% endif -%}
 # limit backup lifetime to 7 days - 604800 seconds
 gitlab_rails['backup_keep_time'] = 604800
+
+# Disable nginx status monitor, see
+# https://docs.gitlab.com/omnibus/settings/nginx.html#enabling-disabling-nginx_status
+nginx['status'] = {
+    'enable' => false
+}
 
 # Whether to redirect http to https
 nginx['redirect_http_to_https'] = {{ gitlab_redirect_http_to_https }}
