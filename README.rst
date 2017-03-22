@@ -23,6 +23,7 @@ certificate signing and renewal process, unless port 80 was open to start with.
 Additionally, some related tools can be installed:
 
 * *GitLab CE* to manage your web site source code, including the *Mattermost* group chat server that comes with it.
+* If you prefer a more traditional team chat, `Unreal IRCd`_ with `Anope`_ services.
 
 *ALMA-NAP* is MIT-licensed.
 
@@ -220,6 +221,16 @@ It is time to install the rest of the software stack:
 Completing Your Setup
 ^^^^^^^^^^^^^^^^^^^^^
 
+**Secure the GitLab ``root`` Account**
+
+Note that *GitLab* is only installed when you add a host to the ``[gitlab]`` group in the inventory.
+
+Open the *GitLab* web interface and change the admistrator password to something secure and unique.
+It's recommended that you also create an additional administrator account ``«you»-admin``
+in addition to the one you use normally.
+Use ``root`` only in case of emergencies.
+
+
 **Disable Root and Password Login**
 
 So that people *not* reading this documentation don't lock themselves
@@ -277,12 +288,18 @@ Please check the following points and if there is a conflict,
 either improve your code or adapt the default values.
 
 * Make sure you're not relying on side effects of assertions.
-
-
+* If your application writes to disk outside of ``/tmp`` and ``/var/www``, then change ``open_basedir`` accordingly.
 
 
 More Technical Details
 ----------------------
+
+
+Credits
+-------
+
+* The ``gitlab`` role is based on `geerlingguy/ansible-role-gitlab`_ (v1.2.1, BSD/MIT).
+* A copy of `diafygi/acme-tiny`_ is used (`fcb7cd6` from 2015-12-29, MIT), with slight modifications.
 
 
 .. _`pyroscope-users`: http://groups.google.com/group/pyroscope-users
@@ -291,3 +308,7 @@ More Technical Details
 .. _`Gitlab CE`: https://about.gitlab.com/features/#community
 .. _`Troubleshooting SSH connections in Ansible`: https://sgargan.blogspot.de/2013/10/troubleshooting-ssh-connections-in.html
 .. _`Uncomplicated Firewall`: https://en.wikipedia.org/wiki/Uncomplicated_Firewall
+.. _`Unreal IRCd`: https://www.unrealircd.org/
+.. _`Anope`: https://www.anope.org/
+.. _`geerlingguy/ansible-role-gitlab`: https://github.com/geerlingguy/ansible-role-gitlab
+.. _`diafygi/acme-tiny`: https://github.com/diafygi/acme-tiny
