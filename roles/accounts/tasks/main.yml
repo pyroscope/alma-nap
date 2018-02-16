@@ -14,3 +14,8 @@
 - name: Install admin SSH keys
   copy: src={{ item.pubkey }} dest=/home/{{ item.name }}/.ssh/authorized_keys owner={{ item.name }} group={{ item.name }} mode=0640
   with_items: admin_accounts
+
+- name: Add password-less sudo (optionally)
+  copy: dest=/etc/sudoers.d/{{ item.name }} owner=root group=root mode=0644 content="{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
+  with_items: admin_accounts
+  when: admin_sudo_nopwd

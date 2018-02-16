@@ -1,3 +1,4 @@
 ---
+admin_sudo_nopwd: false
 admin_accounts:
   - { name: deploy, pubkey: ~/.ssh/deploy.pub }
