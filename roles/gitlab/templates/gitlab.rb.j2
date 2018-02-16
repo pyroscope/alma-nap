@@ -2,6 +2,7 @@
 external_url "{{ gitlab_external_url }}"
 unicorn['port'] = {{ gitlab_unicorn_port }}
 gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_ssh_port }}
+prometheus_monitoring['enable'] = false
 
 {% if mattermost_enabled -%}
 # Mattermost integration
