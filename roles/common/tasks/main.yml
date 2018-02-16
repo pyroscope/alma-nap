@@ -27,6 +27,7 @@
     - haveged
     - htop
     - httpie
+    - inxi
     - iotop
     - lftp
     - libxml2-utils
