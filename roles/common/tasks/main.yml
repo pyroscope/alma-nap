@@ -2,6 +2,9 @@
 - name: Render /etc/motd
   template: src=motd.j2 dest=/etc/motd owner=root group=root mode=0644 force=yes
 
+#- name: Link /etc/motd.head
+#  file: src=motd dest=/etc/motd.head state=link owner=root group=root force=yes
+
 - name: Copy Superuser Helper Scripts
   copy: src={{ item }} dest=/usr/local/sbin/{{ item }} owner=root group=root mode=0750
   with_items:
