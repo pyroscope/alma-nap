@@ -25,6 +25,7 @@
     - bzip2
     - cfv
     - colordiff
+    - coreutils
     - curl
     - gawk
     - haveged
@@ -44,7 +45,6 @@
     - p7zip-full
     - psmisc
     - python-virtualenv
-    - realpath
     - rsync
     - sysstat
     - sudo
