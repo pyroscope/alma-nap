@@ -10,7 +10,7 @@ from invoke import task
 
 ROOTDIR = os.path.dirname(__file__)
 PROJECT = os.path.basename(ROOTDIR)
-BINDIR = "{}/.pyvenv/{}/bin/".format(ROOTDIR, PROJECT)
+BINDIR = "{}/.venv/bin/".format(ROOTDIR)
 RUN_PLAYBOOK = "{bin}ansible-playbook -i hosts -l {prj}-{env} site.yml{opt}"
 
 

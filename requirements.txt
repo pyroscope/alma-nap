@@ -1,5 +1,11 @@
-# Python Tools
+# Python Dependencies
 
-ansible==1.9.6
-invoke==0.13.0
-grip==4.1.0
+# tools
+pip-upgrader
+
+# tasks
+invoke==1.4.1
+grip==4.5.2
+
+# project
+ansible==2.9.5
