@@ -16,47 +16,67 @@
     - profile.d/aliases.sh
     - tmux.conf
 
+- name: Add Deadsnakes PPA (Ubuntu)
+  template: src=deadsnakes-ppa.list dest=/etc/apt/sources.list.d/deadsnakes-ppa.list mode=0644
+  when: ansible_distribution == "Ubuntu"
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install Python 3.x (Ubuntu / Deadsnakes)
+  apt:
+    state: latest
+    name:
+      - "binfmt-support"
+      - "python{{ python3_pkg_version }}"
+      - "python{{ python3_pkg_version }}-venv"
+      - "python{{ python3_pkg_version }}-doc"
+      - "python{{ python3_pkg_version }}-dev"
+  when: ansible_distribution == "Ubuntu"
+
 - name: Install Some Essentials
-  apt: name={{ item }} state=latest
-  with_items:
-    - bash-completion
-    - bc
-    - bind9-host
-    - bzip2
-    - cfv
-    - colordiff
-    - coreutils
-    - curl
-    - gawk
-    - haveged
-    - htop
-    - httpie
-    - inxi
-    - iotop
-    - lftp
-    - libxml2-utils
-    - links
-    - lsb-release
-    - lsof
-    - mediainfo
-    - ncdu
-    - ntp
-    - parallel
-    - p7zip-full
-    - psmisc
-    - python-virtualenv
-    - rsync
-    - sysstat
-    - sudo
-    - tmux
-    - unzip
-    - vim
-    - vnstat
-    - wget
-    - zip
+  apt:
+    state: latest
+    name:
+      - bash-completion
+      - bc
+      - bind9-host
+      - bzip2
+      - cfv
+      - colordiff
+      - coreutils
+      - curl
+      - gawk
+      - haveged
+      - htop
+      - httpie
+      - inxi
+      - iotop
+      - lftp
+      - libxml2-utils
+      - links
+      - lsb-release
+      - lsof
+      - mediainfo
+      - ncdu
+      - ntp
+      - parallel
+      - p7zip-full
+      - psmisc
+      - rsync
+      - sysstat
+      - sudo
+      - tmux
+      - unzip
+      - vim
+      - vnstat
+      - wget
+      - zip
 
 - name: Install Recent Essentials
-  apt: name={{ item }} state=latest
-  with_items:
-    - lnav
+  apt:
+    state: latest
+    name:
+      - lnav
   when: ansible_distribution != "Debian" or ansible_distribution_major_version not in "67"
