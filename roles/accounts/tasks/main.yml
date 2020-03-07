@@ -16,6 +16,6 @@
   with_items: "{{ admin_accounts }}"
 
 - name: Add password-less sudo (optionally)
-  copy: dest=/etc/sudoers.d/{{ item.name }} owner=root group=root mode=0644 content="{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
+  copy: dest=/etc/sudoers.d/{{ item.name }} owner=root group=root mode=0440 content="{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
   with_items: "{{ admin_accounts }}"
   when: admin_sudo_nopwd
