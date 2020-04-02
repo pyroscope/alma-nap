@@ -43,7 +43,7 @@
       - bc
       - bind9-host
       - bzip2
-      - cfv
+      #- cfv
       - colordiff
       - coreutils
       - curl
