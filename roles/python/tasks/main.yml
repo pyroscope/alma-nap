@@ -1,16 +1,20 @@
 ---
 - name: Install Python Basics
-  apt: name={{ item }} state=latest
+  apt:
+    state: latest
+    name:
+      - python3
+      - python3-venv
+      - python3-pip
+      - python3-dev
+      - libssl-dev
+      - libffi-dev
+      - libxml2-dev
+
+- name: Copy "virtualenv" wrapper script
+  copy: src=bin/{{ item }} dest=/usr/local/bin/{{ item }} owner=root group=root mode=0755
   with_items:
-    - python
-    - python-setuptools
-    - python-pkg-resources
-    - python-virtualenv
-    - python-pip
-    - python-dev
-    - libssl-dev
-    - libffi-dev
-    - libxml2-dev
+    - virtualenv
 
 - name: Create virtualenv dir
   file: path="/usr/local/pyvenv" state=directory owner=root group=root mode=0755

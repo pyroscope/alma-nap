@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+py=/usr/bin/python3
+
+# Ansible sets the Python interpreter
+if test "${1:0:2}" = "-p"; then
+    py="${1:2}"
+    shift
+fi
+
+# Delegate to "venv"
+$py -m venv "$@"
