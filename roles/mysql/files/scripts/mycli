@@ -6,12 +6,13 @@
 MYCLI="/usr/local/pyvenv/mycli/bin/mycli"
 WWW_DIR="/var/www"
 test -f "$WWW_DIR/include/config.php" || WWW_DIR="/var/www/html"
+test -f "$WWW_DIR/include/secrets.php" || WWW_DIR="/var/www/html"
 
 if test -f "$WWW_DIR/include/secrets.php" >/dev/null; then
-    eval $(grep ^\\\$ $WWW_DIR/include/secrets.php \
+    eval $(tr -d $'\r' <$WWW_DIR/include/secrets.php | grep ^\\\$ \
         | sed -re 's/\s*=\s*/=/' -e 's/;$//' -e 's/^\$//')
 elif grep -l "^.INSTALLER09" "$WWW_DIR/include/config.php" >/dev/null; then
-    eval $(grep ^\\\$.*mysql $WWW_DIR/include/config.php \
+    eval $(tr -d $'\r' <$WWW_DIR/include/config.php | grep ^\\\$.*mysql \
         | sed -re 's/\s*=\s*/=/' -e 's/;$//' -e 's/^\$//' -e "s/INSTALLER09\\['([^']+)']/\\1/")
 else
     echo >&2 "ERROR: Cannot find database credentials"
