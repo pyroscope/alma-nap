@@ -1,12 +1,16 @@
 ---
-- name: Install MySQL packages
-  apt: name={{ item }} state=latest
-  with_items:
-    - mysql-server-5.5
-    - mysql-client-5.5
+- name: Install MariaDB / MySQL packages
+  apt:
+    state: latest
+    name:
+      - "{{ db_brand }}-server"
+      - "{{ db_brand }}-client"
 
 - name: install 'mycli'
-  pip: name=mycli version=1.8.1 virtualenv=/usr/local/pyvenv/mycli
+  pip:
+    name: mycli
+    version: 1.20.1
+    virtualenv: /usr/local/pyvenv/mycli
 
 - name: Install mycli Wrapper
   copy: src="scripts/{{ item }}" dest="/usr/local/bin/{{ item }}" owner=root group=root mode=0755 force=yes
