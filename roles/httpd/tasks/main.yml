@@ -1,21 +1,32 @@
 ---
+- name: Load distro-specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "os_{{ ansible_lsb.codename }}_{{ ansible_architecture }}.yml"
+    - "os_{{ ansible_distribution_release }}.yml"
+    - "os_default.yml"
+
 - name: Install nginx packages
-  apt: name={{ item }} state=latest
-  with_items:
-    - nginx-full
-    - apache2-utils
+  apt:
+    state: latest
+    name:
+      - nginx-full
+      - apache2-utils
 
 - name: Install PHP Basics
-  apt: name={{ item }} state=latest
-  with_items:
-    - php5-cli
-    - php5-fpm
-    - php5-mysql
-    - php5-curl
-    - php5-json
-    - php5-mcrypt
-    - php5-apcu
-    - php5-gd
+  apt:
+    state: latest
+    name:
+      - "php{{ php_version }}-cli"
+      - "php{{ php_version }}-fpm"
+      - "php{{ php_version }}-mysql"
+      - "php{{ php_version }}-curl"
+      - "php{{ php_version }}-json"
+      # https://varunver.wordpress.com/2019/10/11/install-php-mcrypt-on-debian-10-php-7-3/
+      #- "php{{ php_version }}-mcrypt"
+      - "php{{ php_version }}-gd"
+      - "{{ php_apcu }}"
+      - php-geoip
 
 - name: Create nginx cert directory
   file: path=/etc/nginx/ssl state=directory owner=root group=www-data mode=0750
