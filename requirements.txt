@@ -9,3 +9,4 @@ grip==4.5.2
 
 # project
 ansible==2.9.5
+netaddr==0.7.19
