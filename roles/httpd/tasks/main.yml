@@ -28,6 +28,35 @@
       - "{{ php_apcu }}"
       - php-geoip
 
+- name: Get PHP5 APT key
+  get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /etc/apt/trusted.gpg.d/sury-org-php.gpg
+    mode: '0644'
+  when: php5_ppa
+
+- name: Add PHP5 APT source
+  copy:
+    dest: /etc/apt/sources.list.d/sury-org-php.list
+    mode: '0440'
+    content: "deb https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
+  when: php5_ppa
+
+- name: Install PHP5 packages
+  apt:
+    state: latest
+    name:
+      - "php5.6-cli"
+      - "php5.6-fpm"
+      - "php5.6-mysql"
+      - "php5.6-curl"
+      - "php5.6-json"
+      - "php5.6-mcrypt"
+      - "php5.6-gd"
+      - "php5.6-geoip"
+      - "php5.6-apcu"
+  when: php5_ppa
+
 - name: Create nginx cert directory
   file: path=/etc/nginx/ssl state=directory owner=root group=www-data mode=0750
 

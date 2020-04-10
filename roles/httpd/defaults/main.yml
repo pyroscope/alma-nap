@@ -1,2 +1,3 @@
 ---
 httpd_lets_encrypt: true
+php5_ppa: false
